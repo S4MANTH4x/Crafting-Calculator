@@ -27,7 +27,7 @@
             --fs-copy-btn: 14px;          
             
             --fs-recipe-h2: 20px;         
-            --fs-recipe-h3: 15px;         
+            --fs-recipe-h3: 20px;         
             --fs-xp-text: 16px;           
             --fs-price-text: 18px;        
             --fs-list-item: 16px;         
@@ -150,8 +150,8 @@
         }
 
         .recipe-tab.active { color: var(--accent); font-weight: bold; border-bottom: 1px dashed var(--accent); }
-        .recipe-icon { width: 24px; height: 24px; object-fit: contain; margin-right: 10px; }
-        .recipe-icon-text { font-size: var(--fs-recipe-icon); margin-right: 10px; }
+        .recipe-icon { width: 24px; height: 24px; object-fit: contain; margin-right: 8px; vertical-align: middle; }
+        .recipe-icon-text { font-size: var(--fs-recipe-icon); margin-right: 8px; vertical-align: middle; }
 
         .add-btn-container { position: absolute; bottom: 30px; left: 0; width: 100%; text-align: center; }
         .btn {
@@ -175,7 +175,16 @@
             100% { transform: rotateY(0deg); opacity: 1; }
         }
 
-        h2 { margin-top: 0; color: var(--ink); font-size: var(--fs-recipe-h2); margin-bottom: 5px; display: flex; align-items: center;}
+        /* Fixed H2 Title layout for long names */
+        h2 { 
+            margin-top: 0; 
+            color: var(--ink); 
+            font-size: var(--fs-recipe-h2); 
+            margin-bottom: 5px; 
+            line-height: 1.2;
+            word-break: break-word;
+        }
+
         .xp-text { color: var(--accent); font-size: var(--fs-xp-text); font-weight: bold; margin-bottom: 15px;}
         .price-text { font-size: var(--fs-price-text); font-weight: bold; margin-bottom: 20px;}
         h3 { font-size: var(--fs-recipe-h3); margin-top: 20px;}
@@ -190,7 +199,15 @@
         }
         .copy-btn:hover { background: var(--accent); }
 
-        .target-qty-container { display: flex; align-items: center; font-size: var(--fs-qty-label); color: var(--ink); }
+        .target-qty-container { 
+            display: flex; 
+            align-items: center; 
+            font-size: var(--fs-qty-label); 
+            color: var(--ink); 
+            flex-shrink: 0;
+            margin-left: 10px;
+        }
+
         .target-qty-input {
             width: 55px; text-align: center; margin-left: 10px; background: rgba(139, 90, 43, 0.1);
             border: 1px solid var(--ink); border-radius: 3px; padding: 4px;
@@ -312,35 +329,710 @@
 
     <script>
         const defaultRecipes = [
-                        {
-                name: "Gunoil", 
-                icon: "",
-                yield: 5,
-                xp: 5,
-                totalPrice: 2.00,
-                ingredients: [{ qty: 2, name: "Fat", cost: 0.50 }, { qty: 1, name: "Water", cost: 0.50 }, { qty: 1, name: "Minerals", cost: 0.50 }], tools: ["Grinder"]},
-            {
-                name: "Black Powder",
-                icon: "", 
-                yield: 10,
-                xp: 3,
-                totalPrice: 3.00,
-                ingredients: [{ qty: 2, name: "Any Fuel", cost: 0.50 }, { qty: 2, name: "Nitrite", cost: 0.50 }, { qty: 2, name: "Salt", cost: 0.50 },],tools: ["Grinder"]},
-            {
-                name: "Revolver Normal",
-                icon: "", 
-                yield: 1,
-                xp: 2,
-                totalPrice: 0.80,
-                ingredients: [{ qty: 1, name: "Bullet", cost: 0.20 }, { qty: 1, name: "Black Powder", cost: 0.30 }, { qty: 1, name: "Brass Casing", cost: 0.30 },],tools: ["None"]},
-            {
-                name: "Pistol Normal",
-                icon: "", 
-                yield: 1,
-                xp: 2,
-                totalPrice: 0.80,
-                ingredients: [{ qty: 1, name: "Bullet", cost: 0.20 }, { qty: 1, name: "Black Powder", cost: 0.30 }, { qty: 1, name: "Brass Casing", cost: 0.30 },],tools: ["None"]}
-        ];
+    {
+        name: "Gun Oil",
+        icon: "",
+        yield: 10,
+        xp: 5,
+        totalPrice: 2.00,
+        ingredients: [
+            { qty: 2, name: "Fat", cost: 0.50 },
+            { qty: 1, name: "Water", cost: 0.50 },
+            { qty: 1, name: "Minerals", cost: 0.50 }
+        ],
+        tools: ["Grinder"]
+    },
+    {
+        name: "Black Powder",
+        icon: "",
+        yield: 10,
+        xp: 3,
+        totalPrice: 3.00,
+        ingredients: [
+            { qty: 2, name: "Any Fuel", cost: 0.50 },
+            { qty: 2, name: "Nitrite", cost: 0.50 },
+            { qty: 2, name: "Salt", cost: 0.50 }
+        ],
+        tools: ["Grinder"]
+    },
+    {
+        name: "Revolver Ammo Normal",
+        icon: "",
+        yield: 1,
+        xp: 2,
+        totalPrice: 0.80,
+        ingredients: [
+            { qty: 1, name: "Bullet", cost: 0.20 },
+            { qty: 1, name: "Black Powder", cost: 0.30 },
+            { qty: 1, name: "Brass Casing", cost: 0.30 }
+        ],
+        tools: []
+    },
+    {
+        name: "Pistol Ammo Normal",
+        icon: "",
+        yield: 1,
+        xp: 2,
+        totalPrice: 0.80,
+        ingredients: [
+            { qty: 1, name: "Bullet", cost: 0.20 },
+            { qty: 1, name: "Black Powder", cost: 0.30 },
+            { qty: 1, name: "Brass Casing", cost: 0.30 }
+        ],
+        tools: []
+    },
+    {
+        name: "Repeater Ammo Normal",
+        icon: "",
+        yield: 1,
+        xp: 2,
+        totalPrice: 1.10,
+        ingredients: [
+            { qty: 1, name: "Bullet", cost: 0.20 },
+            { qty: 1, name: "Black Powder", cost: 0.30 },
+            { qty: 2, name: "Brass Casing", cost: 0.30 }
+        ],
+        tools: []
+    },
+    {
+        name: "Rifle Ammo Normal",
+        icon: "",
+        yield: 1,
+        xp: 2,
+        totalPrice: 1.10,
+        ingredients: [
+            { qty: 1, name: "Bullet", cost: 0.20 },
+            { qty: 1, name: "Black Powder", cost: 0.30 },
+            { qty: 2, name: "Brass Casing", cost: 0.30 }
+        ],
+        tools: []
+    },
+    {
+        name: "Revolver Ammo Splitpoint",
+        icon: "",
+        yield: 1,
+        xp: 2,
+        totalPrice: 1.40,
+        ingredients: [
+            { qty: 1, name: "Bullet", cost: 0.20 },
+            { qty: 3, name: "Black Powder", cost: 0.30 },
+            { qty: 1, name: "Brass Casing", cost: 0.30 }
+        ],
+        tools: ["Chisel"]
+    },
+    {
+        name: "Pistol Ammo Splitpoint",
+        icon: "",
+        yield: 1,
+        xp: 2,
+        totalPrice: 1.40,
+        ingredients: [
+            { qty: 1, name: "Bullet", cost: 0.20 },
+            { qty: 3, name: "Black Powder", cost: 0.30 },
+            { qty: 1, name: "Brass Casing", cost: 0.30 }
+        ],
+        tools: ["Chisel"]
+    },
+    {
+        name: "Repeater Ammo Splitpoint",
+        icon: "",
+        yield: 1,
+        xp: 2,
+        totalPrice: 1.70,
+        ingredients: [
+            { qty: 1, name: "Bullet", cost: 0.20 },
+            { qty: 3, name: "Black Powder", cost: 0.30 },
+            { qty: 2, name: "Brass Casing", cost: 0.30 }
+        ],
+        tools: ["Chisel"]
+    },
+    {
+        name: "Rifle Ammo Splitpoint",
+        icon: "",
+        yield: 1,
+        xp: 2,
+        totalPrice: 1.70,
+        ingredients: [
+            { qty: 1, name: "Bullet", cost: 0.20 },
+            { qty: 3, name: "Black Powder", cost: 0.30 },
+            { qty: 2, name: "Brass Casing", cost: 0.30 }
+        ],
+        tools: ["Chisel"]
+    },
+    {
+        name: "Revolver Ammo Velocity",
+        icon: "",
+        yield: 1,
+        xp: 2,
+        totalPrice: 1.40,
+        ingredients: [
+            { qty: 1, name: "Bullet", cost: 0.20 },
+            { qty: 3, name: "Black Powder", cost: 0.30 },
+            { qty: 1, name: "Brass Casing", cost: 0.30 }
+        ],
+        tools: []
+    },
+    {
+        name: "Pistol Ammo Velocity",
+        icon: "",
+        yield: 1,
+        xp: 2,
+        totalPrice: 1.40,
+        ingredients: [
+            { qty: 1, name: "Bullet", cost: 0.20 },
+            { qty: 3, name: "Black Powder", cost: 0.30 },
+            { qty: 1, name: "Brass Casing", cost: 0.30 }
+        ],
+        tools: []
+    },
+    {
+        name: "Repeater Ammo Velocity",
+        icon: "",
+        yield: 1,
+        xp: 2,
+        totalPrice: 1.70,
+        ingredients: [
+            { qty: 1, name: "Bullet", cost: 0.20 },
+            { qty: 3, name: "Black Powder", cost: 0.30 },
+            { qty: 2, name: "Brass Casing", cost: 0.30 }
+        ],
+        tools: []
+    },
+    {
+        name: "Rifle Ammo Velocity",
+        icon: "",
+        yield: 1,
+        xp: 2,
+        totalPrice: 1.70,
+        ingredients: [
+            { qty: 1, name: "Bullet", cost: 0.20 },
+            { qty: 3, name: "Black Powder", cost: 0.30 },
+            { qty: 2, name: "Brass Casing", cost: 0.30 }
+        ],
+        tools: []
+    },
+    {
+        name: "Revolver Ammo Express",
+        icon: "",
+        yield: 1,
+        xp: 2,
+        totalPrice: 1.10,
+        ingredients: [
+            { qty: 1, name: "Bullet", cost: 0.20 },
+            { qty: 2, name: "Black Powder", cost: 0.30 },
+            { qty: 1, name: "Brass Casing", cost: 0.30 }
+        ],
+        tools: []
+    },
+    {
+        name: "Pistol Ammo Express",
+        icon: "",
+        yield: 1,
+        xp: 2,
+        totalPrice: 1.10,
+        ingredients: [
+            { qty: 1, name: "Bullet", cost: 0.20 },
+            { qty: 2, name: "Black Powder", cost: 0.30 },
+            { qty: 1, name: "Brass Casing", cost: 0.30 }
+        ],
+        tools: []
+    },
+    {
+        name: "Repeater Ammo Express",
+        icon: "",
+        yield: 1,
+        xp: 2,
+        totalPrice: 1.40,
+        ingredients: [
+            { qty: 1, name: "Bullet", cost: 0.20 },
+            { qty: 2, name: "Black Powder", cost: 0.30 },
+            { qty: 2, name: "Brass Casing", cost: 0.30 }
+        ],
+        tools: []
+    },
+    {
+        name: "Buckshot Ammo",
+        icon: "",
+        yield: 1,
+        xp: 2,
+        totalPrice: 2.50,
+        ingredients: [
+            { qty: 2, name: "Iron Extract", cost: 0.50 },
+            { qty: 2, name: "Black Powder", cost: 0.30 },
+            { qty: 2, name: "Brass Casing", cost: 0.30 },
+            { qty: 1, name: "Cloth", cost: 0.30 }
+        ],
+        tools: []
+    },
+    {
+        name: "Slug Ammo",
+        icon: "",
+        yield: 1,
+        xp: 2,
+        totalPrice: 2.00,
+        ingredients: [
+            { qty: 1, name: "Lead", cost: 0.50 },
+            { qty: 2, name: "Black Powder", cost: 0.30 },
+            { qty: 2, name: "Brass Casing", cost: 0.30 },
+            { qty: 1, name: "Cloth", cost: 0.30 }
+        ],
+        tools: []
+    },
+    {
+        name: "Varmint Ammo",
+        icon: "",
+        yield: 1,
+        xp: 2,
+        totalPrice: 1.40,
+        ingredients: [
+            { qty: 1, name: "Bullet", cost: 0.50 },
+            { qty: 1, name: "Black Powder", cost: 0.30 },
+            { qty: 2, name: "Brass Casing", cost: 0.30 }
+        ],
+        tools: []
+    },
+    {
+        name: "Schofield Revolver",
+        icon: "",
+        yield: 1,
+        xp: 6,
+        totalPrice: 7.70,
+        ingredients: [
+            { qty: 1, name: "Revolver Barrel", cost: 2.45 },
+            { qty: 1, name: "Revolver Cylinder", cost: 1.55 },
+            { qty: 1, name: "Revolver Handle", cost: 1.00 },
+            { qty: 2, name: "Steel", cost: 0.75 },
+            { qty: 2, name: "Copper", cost: 0.50 },
+            { qty: 1, name: "Gun Oil", cost: 0.20 }
+        ],
+        tools: ["Iron Hammer"]
+    },
+    {
+        name: "Double Action Revolver",
+        icon: "",
+        yield: 1,
+        xp: 6,
+        totalPrice: 6.95,
+        ingredients: [
+            { qty: 1, name: "Revolver Barrel", cost: 2.45 },
+            { qty: 1, name: "Revolver Cylinder", cost: 1.55 },
+            { qty: 1, name: "Revolver Handle", cost: 1.00 },
+            { qty: 1, name: "Steel", cost: 0.75 },
+            { qty: 2, name: "Copper", cost: 0.50 },
+            { qty: 1, name: "Gun Oil", cost: 0.20 }
+        ],
+        tools: ["Iron Hammer"]
+    },
+    {
+        name: "Cattleman Revolver",
+        icon: "",
+        yield: 1,
+        xp: 6,
+        totalPrice: 6.45,
+        ingredients: [
+            { qty: 1, name: "Revolver Barrel", cost: 2.45 },
+            { qty: 1, name: "Revolver Cylinder", cost: 1.55 },
+            { qty: 1, name: "Revolver Handle", cost: 1.00 },
+            { qty: 1, name: "Steel", cost: 0.75 },
+            { qty: 1, name: "Copper", cost: 0.50 },
+            { qty: 1, name: "Gun Oil", cost: 0.20 }
+        ],
+        tools: ["Iron Hammer"]
+    },
+    {
+        name: "LeMat Revolver",
+        icon: "",
+        yield: 1,
+        xp: 5,
+        totalPrice: 11.05,
+        ingredients: [
+            { qty: 1, name: "Revolver Barrel", cost: 2.45 },
+            { qty: 1, name: "Shotgun Barrel", cost: 4.10 },
+            { qty: 1, name: "Revolver Cylinder", cost: 1.55 },
+            { qty: 1, name: "Revolver Handle", cost: 1.00 },
+            { qty: 1, name: "Steel", cost: 0.75 },
+            { qty: 2, name: "Copper", cost: 0.50 },
+            { qty: 1, name: "Gun Oil", cost: 0.20 }
+        ],
+        tools: ["Iron Hammer"]
+    },
+    {
+        name: "Navy Revolver",
+        icon: "",
+        yield: 1,
+        xp: 5,
+        totalPrice: 8.95,
+        ingredients: [
+            { qty: 1, name: "Revolver Barrel", cost: 2.45 },
+            { qty: 1, name: "Revolver Cylinder", cost: 1.55 },
+            { qty: 1, name: "Revolver Handle", cost: 1.00 },
+            { qty: 3, name: "Steel", cost: 0.75 },
+            { qty: 3, name: "Copper", cost: 0.50 },
+            { qty: 1, name: "Gun Oil", cost: 0.20 }
+        ],
+        tools: ["Iron Hammer"]
+    },
+    {
+        name: "Volcanic Pistol",
+        icon: "",
+        yield: 1,
+        xp: 5,
+        totalPrice: 10.60,
+        ingredients: [
+            { qty: 1, name: "Revolver Barrel", cost: 2.45 },
+            { qty: 1, name: "Repeater Receiver", cost: 3.30 },
+            { qty: 1, name: "Revolver Handle", cost: 1.00 },
+            { qty: 3, name: "Steel", cost: 0.75 },
+            { qty: 2, name: "Copper", cost: 0.50 },
+            { qty: 3, name: "Gun Oil", cost: 0.20 }
+        ],
+        tools: ["Iron Hammer"]
+    },
+    {
+        name: "Double Barrel Shotgun",
+        icon: "",
+        yield: 1,
+        xp: 5,
+        totalPrice: 13.15,
+        ingredients: [
+            { qty: 2, name: "Shotgun Barrel", cost: 4.10 },
+            { qty: 1, name: "Shotgun Stock", cost: 3.00 },
+            { qty: 1, name: "Steel", cost: 0.75 },
+            { qty: 2, name: "Copper", cost: 0.50 },
+            { qty: 1, name: "Gun Oil", cost: 0.20 }
+        ],
+        tools: ["Iron Hammer"]
+    },
+    {
+        name: "Sawn Off Shotgun",
+        icon: "",
+        yield: 1,
+        xp: 5,
+        totalPrice: 13.65,
+        ingredients: [
+            { qty: 2, name: "Shotgun Barrel", cost: 4.10 },
+            { qty: 1, name: "Shotgun Stock", cost: 3.00 },
+            { qty: 1, name: "Leather", cost: 1.50 },
+            { qty: 1, name: "Sandpaper", cost: 0.75 },
+            { qty: 1, name: "Gun Oil", cost: 0.20 }
+        ],
+        tools: ["Sander"]
+    },
+    {
+        name: "Repeating Shotgun",
+        icon: "",
+        yield: 1,
+        xp: 22,
+        totalPrice: 16.00,
+        ingredients: [
+            { qty: 1, name: "Shotgun Barrel", cost: 4.10 },
+            { qty: 1, name: "Shotgun Stock", cost: 3.00 },
+            { qty: 1, name: "Rifle Receiver", cost: 3.20 },
+            { qty: 4, name: "Steel", cost: 0.75 },
+            { qty: 5, name: "Copper", cost: 0.50 },
+            { qty: 1, name: "Gun Oil", cost: 0.20 }
+        ],
+        tools: ["Iron Hammer"]
+    },
+    {
+        name: "Pump Shotgun",
+        icon: "",
+        yield: 1,
+        xp: 5,
+        totalPrice: 10.30,
+        ingredients: [
+            { qty: 1, name: "Shotgun Barrel", cost: 4.10 },
+            { qty: 1, name: "Shotgun Stock", cost: 3.00 },
+            { qty: 1, name: "Leather", cost: 1.50 },
+            { qty: 1, name: "Steel", cost: 0.75 },
+            { qty: 1, name: "Sandpaper", cost: 0.75 },
+            { qty: 1, name: "Gun Oil", cost: 0.20 }
+        ],
+        tools: ["Sander"]
+    },
+    {
+        name: "Henry Repeater",
+        icon: "",
+        yield: 1,
+        xp: 5,
+        totalPrice: 9.20,
+        ingredients: [
+            { qty: 1, name: "Repeater Barrel", cost: 2.45 },
+            { qty: 1, name: "Repeater Stock", cost: 2.00 },
+            { qty: 1, name: "Repeater Receiver", cost: 3.30 },
+            { qty: 1, name: "Steel", cost: 0.75 },
+            { qty: 1, name: "Copper", cost: 0.50 },
+            { qty: 1, name: "Gun Oil", cost: 0.20 }
+        ],
+        tools: ["Iron Hammer"]
+    },
+    {
+        name: "Carbine Repeater",
+        icon: "",
+        yield: 1,
+        xp: 5,
+        totalPrice: 9.20,
+        ingredients: [
+            { qty: 1, name: "Repeater Barrel", cost: 2.45 },
+            { qty: 1, name: "Repeater Stock", cost: 2.00 },
+            { qty: 1, name: "Repeater Receiver", cost: 3.30 },
+            { qty: 1, name: "Steel", cost: 0.75 },
+            { qty: 1, name: "Copper", cost: 0.50 },
+            { qty: 1, name: "Gun Oil", cost: 0.20 }
+        ],
+        tools: ["Iron Hammer"]
+    },
+    {
+        name: "Evans Repeater",
+        icon: "",
+        yield: 1,
+        xp: 5,
+        totalPrice: 10.45,
+        ingredients: [
+            { qty: 1, name: "Repeater Barrel", cost: 2.45 },
+            { qty: 1, name: "Repeater Stock", cost: 2.00 },
+            { qty: 1, name: "Repeater Receiver", cost: 3.30 },
+            { qty: 2, name: "Steel", cost: 0.75 },
+            { qty: 2, name: "Copper", cost: 0.50 },
+            { qty: 1, name: "Gun Oil", cost: 0.20 }
+        ],
+        tools: ["Iron Hammer"]
+    },
+    {
+        name: "Winchester Repeater",
+        icon: "",
+        yield: 1,
+        xp: 5,
+        totalPrice: 10.95,
+        ingredients: [
+            { qty: 1, name: "Repeater Barrel", cost: 2.45 },
+            { qty: 1, name: "Repeater Stock", cost: 2.00 },
+            { qty: 1, name: "Repeater Receiver", cost: 3.30 },
+            { qty: 2, name: "Steel", cost: 0.75 },
+            { qty: 3, name: "Copper", cost: 0.50 },
+            { qty: 1, name: "Gun Oil", cost: 0.20 }
+        ],
+        tools: ["Iron Hammer"]
+    },
+    {
+        name: "Varmint Rifle",
+        icon: "",
+        yield: 1,
+        xp: 5,
+        totalPrice: 12.20,
+        ingredients: [
+            { qty: 1, name: "Rifle Barrel", cost: 2.45 },
+            { qty: 1, name: "Rifle Stock", cost: 2.00 },
+            { qty: 1, name: "Repeater Receiver", cost: 3.30 },
+            { qty: 3, name: "Steel", cost: 0.75 },
+            { qty: 4, name: "Copper", cost: 0.50 },
+            { qty: 1, name: "Gun Oil", cost: 0.20 }
+        ],
+        tools: ["Iron Hammer"]
+    },
+    {
+        name: "Bolt Action Rifle",
+        icon: "",
+        yield: 1,
+        xp: 5,
+        totalPrice: 12.70,
+        ingredients: [
+            { qty: 1, name: "Rifle Barrel", cost: 2.45 },
+            { qty: 1, name: "Rifle Stock", cost: 2.00 },
+            { qty: 1, name: "Rifle Receiver", cost: 3.30 },
+            { qty: 3, name: "Steel", cost: 0.75 },
+            { qty: 5, name: "Copper", cost: 0.50 },
+            { qty: 1, name: "Gun Oil", cost: 0.20 }
+        ],
+        tools: ["Iron Hammer"]
+    },
+    {
+        name: "Springfield Rifle",
+        icon: "",
+        yield: 1,
+        xp: 22,
+        totalPrice: 14.45,
+        ingredients: [
+            { qty: 1, name: "Rifle Barrel", cost: 2.45 },
+            { qty: 1, name: "Rifle Stock", cost: 2.00 },
+            { qty: 1, name: "Rifle Receiver", cost: 3.30 },
+            { qty: 4, name: "Steel", cost: 0.75 },
+            { qty: 7, name: "Copper", cost: 0.50 },
+            { qty: 1, name: "Gun Oil", cost: 0.20 }
+        ],
+        tools: ["Iron Hammer"]
+    },
+    {
+        name: "Rollingblock Rifle",
+        icon: "",
+        yield: 1,
+        xp: 30,
+        totalPrice: 15.95,
+        ingredients: [
+            { qty: 1, name: "Rifle Barrel", cost: 2.45 },
+            { qty: 1, name: "Rifle Stock", cost: 2.00 },
+            { qty: 1, name: "Rifle Receiver", cost: 3.30 },
+            { qty: 4, name: "Steel", cost: 0.75 },
+            { qty: 10, name: "Copper", cost: 0.50 },
+            { qty: 1, name: "Gun Oil", cost: 0.20 }
+        ],
+        tools: ["Iron Hammer"]
+    },
+    {
+        name: "Carcano Rifle",
+        icon: "",
+        yield: 1,
+        xp: 22,
+        totalPrice: 14.45,
+        ingredients: [
+            { qty: 1, name: "Rifle Barrel", cost: 2.45 },
+            { qty: 1, name: "Rifle Stock", cost: 2.00 },
+            { qty: 1, name: "Rifle Receiver", cost: 3.30 },
+            { qty: 4, name: "Steel", cost: 0.75 },
+            { qty: 7, name: "Copper", cost: 0.50 },
+            { qty: 1, name: "Gun Oil", cost: 0.20 }
+        ],
+        tools: ["Iron Hammer"]
+    },
+    {
+        name: "Lasso",
+        icon: "",
+        yield: 1,
+        xp: 5,
+        totalPrice: 1.70,
+        ingredients: [
+            { qty: 1, name: "Rope", cost: 0.50 },
+            { qty: 4, name: "String", cost: 0.30 }
+        ],
+        tools: ["Crafting Knife"]
+    },
+    {
+        name: "Reinforced Lasso",
+        icon: "",
+        yield: 1,
+        xp: 5,
+        totalPrice: 3.10,
+        ingredients: [
+            { qty: 2, name: "Rope", cost: 0.50 },
+            { qty: 6, name: "String", cost: 0.30 },
+            { qty: 1, name: "Sap", cost: 0.30 }
+        ],
+        tools: ["Crafting Knife"]
+    },
+    {
+        name: "String",
+        icon: "",
+        yield: 5,
+        xp: 1,
+        totalPrice: 2.10,
+        ingredients: [
+            { qty: 3, name: "Fibers", cost: 0.50 },
+            { qty: 2, name: "Sap", cost: 0.30 }
+        ],
+        tools: ["Scissors"]
+    },
+    {
+        name: "Rope",
+        icon: "",
+        yield: 1,
+        xp: 6,
+        totalPrice: 2.10,
+        ingredients: [
+            { qty: 3, name: "Textiles", cost: 0.50 },
+            { qty: 2, name: "String", cost: 0.30 }
+        ],
+        tools: ["Knife", "Lighter"]
+    },
+    {
+        name: "Bee Wax",
+        icon: "",
+        yield: 3,
+        xp: 5,
+        totalPrice: 0.80,
+        ingredients: [
+            { qty: 1, name: "Honey Comb", cost: 0.50 },
+            { qty: 1, name: "Gelatin", cost: 0.30 }
+        ],
+        tools: ["Crafting Knife", "Boiler"]
+    },
+    {
+        name: "Gelatin",
+        icon: "",
+        yield: 4,
+        xp: 6,
+        totalPrice: 1.70,
+        ingredients: [
+            { qty: 1, name: "Water", cost: 0.50 },
+            { qty: 2, name: "Fat", cost: 0.30 },
+            { qty: 2, name: "Animal Part", cost: 0.30 }
+        ],
+        tools: ["Big Pot"]
+    },
+    {
+        name: "Cloth",
+        icon: "",
+        yield: 4,
+        xp: 6,
+        totalPrice: 2.80,
+        ingredients: [
+            { qty: 5, name: "Flax", cost: 0.50 },
+            { qty: 1, name: "Sap", cost: 0.30 }
+        ],
+        tools: ["Scissors"]
+    },
+    {
+        name: "Bow",
+        icon: "",
+        yield: 1,
+        xp: 5,
+        totalPrice: 1.40,
+        ingredients: [
+            { qty: 1, name: "Wood", cost: 0.50 },
+            { qty: 3, name: "String", cost: 0.30 }
+        ],
+        tools: ["Crafting Knife"]
+    },
+    {
+        name: "Improved Bow",
+        icon: "",
+        yield: 1,
+        xp: 5,
+        totalPrice: 3.30,
+        ingredients: [
+            { qty: 3, name: "Wood", cost: 0.50 },
+            { qty: 3, name: "String", cost: 0.30 },
+            { qty: 2, name: "Big leather", cost: 0.30 },
+            { qty: 1, name: "Beeswax", cost: 0.30 }
+        ],
+        tools: ["Crafting Knife"]
+    },
+    {
+        name: "Normal Arrow",
+        icon: "",
+        yield: 10,
+        xp: 2,
+        totalPrice: 6.80,
+        ingredients: [
+            { qty: 10, name: "Arrow Head", cost: 0.50 },
+            { qty: 5, name: "Feather", cost: 0.30 },
+            { qty: 1, name: "Hardwood", cost: 0.30 }
+        ],
+        tools: ["Crafting Knife"]
+    },
+    {
+        name: "Improved Arrow",
+        icon: "",
+        yield: 1,
+        xp: 3,
+        totalPrice: 3.20,
+        ingredients: [
+            { qty: 4, name: "Granite Arrow Head", cost: 0.50 },
+            { qty: 2, name: "Feather", cost: 0.30 },
+            { qty: 2, name: "Any wood", cost: 0.30 }
+        ],
+        tools: ["Crafting Knife"]
+    }
+];
 
         let recipes = JSON.parse(localStorage.getItem('redm_crafting_recipes')) || defaultRecipes;
         let currentRecipeIndex = null;
@@ -398,21 +1090,18 @@
             currentRecipeIndex = index;
             currentTargetQty = recipes[currentRecipeIndex].yield || 1; 
             
-            // Build the skeleton once so input focus isn't destroyed
             buildRecipeSkeleton(); 
         }
 
-        // Builds the initial layout leaving blank spans to inject math into
         function buildRecipeSkeleton() {
             const r = recipes[currentRecipeIndex];
             const headerIcon = getIconHTML(r.icon);
 
             recipeView.innerHTML = `
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 5px;">
-                    <h2 style="margin:0;"><span>${headerIcon}</span> <span id="rv_yield_display"></span>x ${r.name}</h2>
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 5px; gap: 10px;">
+                    <h2 style="margin:0; flex: 1;">${headerIcon}<span id="rv_yield_display"></span>x ${r.name}</h2>
                     <div class="target-qty-container">
                         <label>Qty:</label>
-                        <!-- oninput instantly fires while typing without destroying the DOM -->
                         <input type="number" min="1" value="${currentTargetQty}" oninput="updateTargetQuantity(this.value)" class="target-qty-input">
                     </div>
                 </div>
@@ -430,21 +1119,17 @@
                 <ul id="rv_tools_display"></ul>
             `;
 
-            // Draw tools immediately (they don't change based on quantity)
             let toolHTML = '';
             r.tools.forEach(t => { toolHTML += `<li>${t}</li>`; });
             document.getElementById('rv_tools_display').innerHTML = toolHTML || "<li>None</li>";
 
-            // Run math injection
             updateCalculations(currentTargetQty);
         }
 
-        // Captures typing data safely
         function updateTargetQuantity(val) {
             let target = parseInt(val);
             let mathTarget = target;
             
-            // If user deletes the whole box temporarily, do math for 1 but don't force '1' into the input box
             if (isNaN(target) || target < 1) {
                 mathTarget = 1;
                 currentTargetQty = 1;
@@ -455,7 +1140,6 @@
             updateCalculations(mathTarget);
         }
 
-        // Only updates the text spans, protecting the input box from reloading
         function updateCalculations(activeTarget) {
             const r = recipes[currentRecipeIndex];
             const requiredBatches = Math.ceil(activeTarget / r.yield);
