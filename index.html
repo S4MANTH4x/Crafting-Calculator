@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>RedM Crafting Notebook</title>
+    <link href="https://fonts.googleapis.com/css2?family=Special+Elite&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --paper-bg: #f4ebd8;
+            --paper-dark: #e6d8c0;
+            --ink: #2c1a0f;
+            --ink-light: #5d4037;
+            --accent: #8b1a1a;
+            --line-color: rgba(139, 90, 43, 0.2);
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Special Elite', monospace;
+            background: rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        /* Touch Optimizations for inputs */
+        input, textarea, button {
+            -webkit-user-select: text;
+            user-select: text;
+            touch-action: manipulation; /* Removes 300ms tap delay on iOS */
+        }
+
+        /* Responsive Notebook Container (iPad Friendly) */
+        .notebook {
+            position: relative;
+            width: min(900px, 94vw);
+            height: min(600px, 85vh);
+            display: flex;
+            background: var(--paper-bg);
+            border-radius: 10px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.6), inset 0 0 60px rgba(139, 90, 43, 0.15);
+            perspective: 1500px;
+            -webkit-perspective: 1500px;
+        }
+
+        /* The Spine / Binder */
+        .spine {
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 40px;
+            transform: translateX(-50%);
+            background: linear-gradient(to right, 
+                rgba(0,0,0,0.2) 0%, 
+                rgba(0,0,0,0) 20%, 
+                rgba(0,0,0,0) 80%, 
+                rgba(0,0,0,0.2) 100%);
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-evenly;
+            align-items: center;
+            pointer-events: none;
+        }
+
+        .ring {
+            width: 25px;
+            height: 12px;
+            background: linear-gradient(to bottom, #777, #333, #777);
+            border-radius: 10px;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.5);
+        }
+
+        /* Pages */
+        .page-left, .page-right {
+            flex: 1;
+            padding: 40px;
+            box-sizing: border-box;
+            background-image: repeating-linear-gradient(transparent, transparent 29px, var(--line-color) 30px);
+            background-position: 0 10px;
+            position: relative;
+        }
+
+        .page-left {
+            border-right: 1px solid rgba(0,0,0,0.1);
+        }
+
+        /* Left Page Index */
+        .index-title {
+            font-size: 28px;
+            color: var(--ink);
+            text-align: center;
+            margin-top: 0;
+            margin-bottom: 10px;
+            border-bottom: 2px solid var(--ink);
+            padding-bottom: 10px;
+        }
+
+        /* Search Bar */
+        .search-bar {
+            width: 100%;
+            background: transparent;
+            border: none;
+            border-bottom: 1px dashed var(--ink);
+            font-family: 'Special Elite', monospace;
+            font-size: 16px;
+            color: var(--ink);
+            padding: 8px 5px;
+            margin-bottom: 15px;
+            outline: none;
+            box-sizing: border-box;
+        }
+        
+        .search-bar::placeholder {
+            color: rgba(139, 90, 43, 0.6);
+        }
+
+        .search-bar:focus {
+            border-bottom: 2px solid var(--accent);
+        }
+
+        .recipe-list {
+            /* Use calc to scale height on smaller screens */
+            height: calc(100% - 150px);
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .recipe-list::-webkit-scrollbar { width: 6px; }
+        .recipe-list::-webkit-scrollbar-track { background: transparent; }
+        .recipe-list::-webkit-scrollbar-thumb { background: rgba(139, 90, 43, 0.4); border-radius: 3px; }
+
+        .recipe-tab {
+            padding: 10px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            font-size: 18px;
+            color: var(--ink-light);
+            border: 1px dashed transparent;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Keep hover effects but avoid sticking on touch screens */
+        @media (hover: hover) {
+            .recipe-tab:hover {
+                color: var(--ink);
+                border-bottom: 1px dashed var(--ink);
+                transform: translateX(5px);
+            }
+        }
+
+        .recipe-tab.active {
+            color: var(--accent);
+            font-weight: bold;
+            border-bottom: 1px dashed var(--accent);
+        }
+
+        .recipe-icon {
+            width: 24px;
+            height: 24px;
+            object-fit: contain;
+            margin-right: 10px;
+        }
+
+        .recipe-icon-text {
+            font-size: 20px;
+            margin-right: 10px;
+        }
+
+        .add-btn-container {
+            position: absolute;
+            bottom: 30px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+        }
+
+        .btn {
+            background: transparent;
+            font-family: 'Special Elite', monospace;
+            border: 1px solid var(--ink);
+            color: var(--ink);
+            padding: 8px 16px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.2s;
+            border-radius: 3px;
+        }
+
+        .btn:hover {
+            background: var(--ink);
+            color: var(--paper-bg);
+        }
+
+        /* Right Page Content Container */
+        .content-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transform-style: preserve-3d;
+            -webkit-transform-style: preserve-3d;
+            transform-origin: left center;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+        }
+
+        .flip-animation {
+            animation: turnPage 0.5s ease-in-out forwards;
+        }
+
+        @keyframes turnPage {
+            0% { transform: rotateY(0deg); opacity: 0; }
+            50% { transform: rotateY(90deg); opacity: 0; }
+            51% { transform: rotateY(90deg); opacity: 1; }
+            100% { transform: rotateY(0deg); opacity: 1; }
+        }
+
+        /* Typography for Right Page */
+        h2 { margin-top: 0; color: var(--ink); font-size: 32px; margin-bottom: 5px; display: flex; align-items: center;}
+        .xp-text { color: var(--accent); font-size: 16px; font-weight: bold; margin-bottom: 15px;}
+        .price-text { font-size: 18px; font-weight: bold; margin-bottom: 20px;}
+        h3 { font-size: 20px; margin-top: 20px;}
+        
+        ul { list-style-type: none; padding-left: 0; margin-top: 0;}
+        li { font-size: 16px; margin-bottom: 6px; color: var(--ink-light); display: flex; justify-content: space-between;}
+        
+        .copy-btn {
+            background: var(--ink);
+            color: var(--paper-bg);
+            border: none;
+            padding: 5px 10px;
+            font-family: 'Special Elite', monospace;
+            cursor: pointer;
+            font-size: 14px;
+            border-radius: 3px;
+            margin-left: 15px;
+            transition: background 0.2s;
+        }
+        .copy-btn:hover { background: var(--accent); }
+
+        /* Multiplier Inputs */
+        .multiplier-container {
+            display: flex;
+            align-items: center;
+            font-size: 16px;
+            color: var(--ink);
+        }
+
+        .multiplier-input {
+            width: 45px;
+            text-align: center;
+            margin-left: 10px;
+            background: rgba(139, 90, 43, 0.1);
+            border: 1px solid var(--ink);
+            border-radius: 3px;
+            padding: 4px;
+            font-family: 'Special Elite', monospace;
+        }
+
+        /* Form Styles */
+        .form-view { display: none; }
+        .form-group { margin-bottom: 10px; display: flex; gap: 10px;}
+        input {
+            background: transparent;
+            border: none;
+            border-bottom: 1px dashed var(--ink);
+            font-family: 'Special Elite', monospace;
+            font-size: 16px;
+            color: var(--ink);
+            padding: 5px;
+            outline: none;
+        }
+        input:focus { border-bottom: 2px solid var(--accent); }
+        .input-full { width: 100%; }
+        .input-small { width: 60px; }
+        .dynamic-list { max-height: 110px; overflow-y: auto; margin-bottom: 10px; padding-right: 5px;}
+        
+        .add-row-btn {
+            background: transparent; border: 1px dashed var(--ink-light);
+            color: var(--ink-light); cursor: pointer; width: 100%; padding: 5px;
+            font-family: 'Special Elite', monospace; margin-bottom: 10px;
+        }
+        .add-row-btn:hover { border-color: var(--ink); color: var(--ink); }
+
+        /* Default Landing View */
+        #defaultView {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            text-align: center;
+            color: var(--ink-light);
+            opacity: 0.7;
+        }
+        #defaultView h2 { border: none; font-size: 28px; justify-content: center; margin-bottom: 15px;}
+        #defaultView p { font-size: 18px; max-width: 80%; line-height: 1.5; }
+
+        /* Media Queries for smaller screens (iPad Portrait) */
+        @media screen and (max-width: 768px) {
+            .page-left, .page-right {
+                padding: 20px 15px; 
+            }
+            .index-title { font-size: 22px; }
+            h2 { font-size: 24px; }
+            h3 { font-size: 18px; }
+            .recipe-tab { font-size: 16px; padding: 8px 5px; }
+            .price-text, li { font-size: 14px; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="notebook">
+        <!-- Spine -->
+        <div class="spine">
+            <div class="ring"></div>
+            <div class="ring"></div>
+            <div class="ring"></div>
+            <div class="ring"></div>
+            <div class="ring"></div>
+        </div>
+
+        <!-- Left Page (Index) -->
+        <div class="page-left">
+            <h1 class="index-title">Crafting Index</h1>
+            
+            <input type="text" id="searchInput" class="search-bar" placeholder="🔍 Search recipes..." onkeyup="filterRecipes()">
+
+            <div class="recipe-list" id="recipeList">
+                <!-- Tabs generated here -->
+            </div>
+            
+            <div class="add-btn-container">
+                <button class="btn" onclick="openAddForm()">+ Draft New Recipe</button>
+            </div>
+        </div>
+
+        <!-- Right Page (Content) -->
+        <div class="page-right">
+            <div class="content-container" id="pageContent">
+                
+                <!-- Default Placeholder View -->
+                <div id="defaultView">
+                    <h2>📖 Open a page...</h2>
+                    <p>Select a recipe from the index on the left to review its details, or draft a brand new recipe.</p>
+                </div>
+
+                <!-- Recipe Display View -->
+                <div id="recipeView" style="display: none;">
+                    <!-- Populated via JS -->
+                </div>
+
+                <!-- Add Recipe Form View -->
+                <div id="addFormView" class="form-view">
+                    <h2>New Draft</h2>
+                    
+                    <div class="form-group">
+                        <input type="text" id="f_icon" class="input-full" placeholder="Icon Image URL or Emoji (Optional)">
+                    </div>
+
+                    <div class="form-group">
+                        <input type="number" id="f_yield" class="input-small" placeholder="Qty">
+                        <input type="text" id="f_name" class="input-full" placeholder="Recipe Name (e.g. Gunoil)">
+                    </div>
+                    
+                    <div class="form-group">
+                        <input type="number" id="f_xp" class="input-small" placeholder="XP">
+                        <input type="number" step="0.01" id="f_price" class="input-small" placeholder="Total $">
+                    </div>
+
+                    <h3 style="border-bottom: 1px dashed var(--ink); padding-bottom: 5px; margin-bottom: 10px;">Ingredients</h3>
+                    <div class="dynamic-list" id="ingredientsList">
+                        <div class="form-group">
+                            <input type="number" class="input-small i-qty" placeholder="Qty">
+                            <input type="text" class="input-full i-name" placeholder="Item Name">
+                            <input type="number" step="0.01" class="input-small i-cost" placeholder="$ Cost">
+                        </div>
+                    </div>
+                    <button class="add-row-btn" onclick="addIngredientRow()">+ Add Ingredient</button>
+
+                    <h3 style="border-bottom: 1px dashed var(--ink); padding-bottom: 5px; margin-bottom: 10px;">Required Tools</h3>
+                    <div class="dynamic-list" id="toolsList">
+                        <div class="form-group">
+                            <input type="text" class="input-full t-name" placeholder="Tool (e.g. Grinder)">
+                        </div>
+                    </div>
+                    <button class="add-row-btn" onclick="addToolRow()">+ Add Tool</button>
+
+                    <div style="margin-top: 5px; text-align: right;">
+                        <button class="btn" onclick="saveRecipe()">Save to Notebook</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const defaultRecipes = [
+            {
+                name: "Gunoil",
+                icon: "🛢️", 
+                yield: 10,
+                xp: 5,
+                totalPrice: 2.00,
+                ingredients: [
+                    { qty: 2, name: "Fat", cost: 0.50 },
+                    { qty: 1, name: "Water", cost: 0.50 },
+                    { qty: 1, name: "Minerals", cost: 0.50 }
+                ],
+                tools: ["Grinder"]
+            },
+            {
+                name: "Cooked Venison",
+                icon: "🍖", 
+                yield: 1,
+                xp: 10,
+                totalPrice: 1.50,
+                ingredients: [
+                    { qty: 1, name: "Raw Venison", cost: 1.50 },
+                ],
+                tools: ["Campfire"]
+            }
+        ];
+
+        let recipes = JSON.parse(localStorage.getItem('redm_crafting_recipes')) || defaultRecipes;
+        
+        let currentRecipeIndex = null;
+        let currentMultiplier = 1;
+
+        const recipeListEl = document.getElementById('recipeList');
+        const contentContainer = document.getElementById('pageContent');
+        const defaultView = document.getElementById('defaultView');
+        const recipeView = document.getElementById('recipeView');
+        const formView = document.getElementById('addFormView');
+
+        function getIconHTML(iconData) {
+            if (!iconData) return '';
+            if (iconData.startsWith('http') || iconData.includes('.png') || iconData.includes('.jpg') || iconData.includes('.webp')) {
+                return `<img src="${iconData}" class="recipe-icon" alt="icon">`;
+            }
+            return `<span class="recipe-icon-text">${iconData}</span>`;
+        }
+
+        function triggerFlip() {
+            contentContainer.classList.remove('flip-animation');
+            void contentContainer.offsetWidth; 
+            contentContainer.classList.add('flip-animation');
+        }
+
+        function renderIndex() {
+            recipeListEl.innerHTML = '';
+            recipes.forEach((recipe, index) => {
+                const div = document.createElement('div');
+                div.className = 'recipe-tab';
+                div.setAttribute('data-name', recipe.name.toLowerCase()); 
+                
+                div.innerHTML = `
+                    ${getIconHTML(recipe.icon)}
+                    <span>${recipe.name}</span>
+                `;
+                
+                div.onclick = () => loadRecipe(index, div);
+                recipeListEl.appendChild(div);
+            });
+        }
+
+        function filterRecipes() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const tabs = document.querySelectorAll('.recipe-tab');
+            
+            tabs.forEach(tab => {
+                const name = tab.getAttribute('data-name');
+                if (name.includes(query)) tab.style.display = 'flex';
+                else tab.style.display = 'none';
+            });
+        }
+
+        function loadRecipe(index, tabElement) {
+            triggerFlip();
+            
+            document.querySelectorAll('.recipe-tab').forEach(el => el.classList.remove('active'));
+            if(tabElement) tabElement.classList.add('active');
+
+            defaultView.style.display = 'none';
+            formView.style.display = 'none';
+            recipeView.style.display = 'block';
+
+            currentRecipeIndex = index;
+            currentMultiplier = 1; // Reset multiplier when opening a new recipe
+            renderRecipeDetails();
+        }
+
+        function updateMultiplier(val) {
+            let mult = parseInt(val);
+            if (isNaN(mult) || mult < 1) mult = 1;
+            currentMultiplier = mult;
+            
+            // Re-render the details without flipping the page again
+            renderRecipeDetails();
+        }
+
+        function renderRecipeDetails() {
+            const r = recipes[currentRecipeIndex];
+            
+            // Do the math based on user input
+            const calcYield = r.yield * currentMultiplier;
+            const calcXp = r.xp * currentMultiplier;
+            const calcPrice = r.totalPrice * currentMultiplier;
+
+            let ingHTML = '';
+            r.ingredients.forEach(i => {
+                const calcQty = i.qty * currentMultiplier;
+                ingHTML += `<li><span>${calcQty}x ${i.name}</span> <span>$${i.cost.toFixed(2)}/per</span></li>`;
+            });
+
+            let toolHTML = '';
+            r.tools.forEach(t => {
+                toolHTML += `<li>${t}</li>`;
+            });
+
+            const headerIcon = getIconHTML(r.icon);
+
+            recipeView.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 5px;">
+                    <h2 style="margin:0;">${headerIcon} ${calcYield}x ${r.name}</h2>
+                    <div class="multiplier-container">
+                        <label>Batches:</label>
+                        <input type="number" min="1" value="${currentMultiplier}" onchange="updateMultiplier(this.value)" onkeyup="updateMultiplier(this.value)" class="multiplier-input">
+                    </div>
+                </div>
+                
+                <div class="xp-text">+${calcXp} XP</div>
+                <div class="price-text">Total Price: $${calcPrice.toFixed(2)}</div>
+                
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 25px; border-bottom: 1px dashed var(--ink); padding-bottom: 5px; margin-bottom: 10px;">
+                    <h3 style="margin:0; border: none; padding: 0;">Required Ingredients</h3>
+                    <button class="copy-btn" onclick="copyIngredients()">Copy List</button>
+                </div>
+                <ul>${ingHTML}</ul>
+
+                <h3 style="border-bottom: 1px dashed var(--ink); padding-bottom: 5px; margin-bottom: 10px; margin-top: 20px;">Required Tools</h3>
+                <ul>${toolHTML || "<li>None</li>"}</ul>
+            `;
+        }
+
+        // Cross-platform copy functionality with iOS/iPad Safari fallback
+        function copyIngredients() {
+            const r = recipes[currentRecipeIndex];
+            const calcYield = r.yield * currentMultiplier;
+            
+            let text = `Ingredients needed for ${calcYield}x ${r.name}:\n`;
+            r.ingredients.forEach(i => {
+                text += `- ${i.qty * currentMultiplier}x ${i.name}\n`;
+            });
+
+            const btn = document.querySelector('.copy-btn');
+
+            function showSuccess() {
+                btn.innerText = "Copied!";
+                btn.style.background = "var(--accent)";
+                setTimeout(() => {
+                    btn.innerText = "Copy List";
+                    btn.style.background = "var(--ink)";
+                }, 1500);
+            }
+
+            // Modern standard
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(text).then(showSuccess).catch(fallbackCopy);
+            } else {
+                fallbackCopy();
+            }
+
+            // Fallback for non-HTTPS or iOS Safari instances where clipboard API is restricted
+            function fallbackCopy() {
+                const textArea = document.createElement("textarea");
+                textArea.value = text;
+                // Move off-screen to avoid visual jump
+                textArea.style.position = "fixed";
+                textArea.style.top = "0";
+                textArea.style.left = "-9999px";
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                try {
+                    document.execCommand('copy');
+                    showSuccess();
+                } catch (err) {
+                    console.error("Fallback copy failed", err);
+                }
+                document.body.removeChild(textArea);
+            }
+        }
+
+        function openAddForm() {
+            triggerFlip();
+            document.querySelectorAll('.recipe-tab').forEach(el => el.classList.remove('active'));
+            
+            defaultView.style.display = 'none';
+            recipeView.style.display = 'none';
+            formView.style.display = 'block';
+            
+            document.querySelectorAll('input').forEach(input => input.value = '');
+            document.getElementById('searchInput').value = '';
+            filterRecipes();
+        }
+
+        function addIngredientRow() {
+            const row = document.createElement('div');
+            row.className = 'form-group';
+            row.innerHTML = `
+                <input type="number" class="input-small i-qty" placeholder="Qty">
+                <input type="text" class="input-full i-name" placeholder="Item Name">
+                <input type="number" step="0.01" class="input-small i-cost" placeholder="$ Cost">
+            `;
+            document.getElementById('ingredientsList').appendChild(row);
+        }
+
+        function addToolRow() {
+            const row = document.createElement('div');
+            row.className = 'form-group';
+            row.innerHTML = `
+                <input type="text" class="input-full t-name" placeholder="Tool (e.g. Grinder)">
+            `;
+            document.getElementById('toolsList').appendChild(row);
+        }
+
+        function saveRecipe() {
+            const name = document.getElementById('f_name').value.trim();
+            if (!name) return alert("Recipe needs a name!");
+
+            const newRecipe = {
+                name: name,
+                icon: document.getElementById('f_icon').value.trim(),
+                yield: parseInt(document.getElementById('f_yield').value) || 1,
+                xp: parseInt(document.getElementById('f_xp').value) || 0,
+                totalPrice: parseFloat(document.getElementById('f_price').value) || 0.00,
+                ingredients: [],
+                tools: []
+            };
+
+            document.querySelectorAll('#ingredientsList .form-group').forEach(group => {
+                const qty = parseInt(group.querySelector('.i-qty').value);
+                const iName = group.querySelector('.i-name').value.trim();
+                const cost = parseFloat(group.querySelector('.i-cost').value);
+                
+                if (iName && qty) {
+                    newRecipe.ingredients.push({ qty: qty, name: iName, cost: cost || 0.00 });
+                }
+            });
+
+            document.querySelectorAll('#toolsList .form-group').forEach(group => {
+                const tName = group.querySelector('.t-name').value.trim();
+                if (tName) newRecipe.tools.push(tName);
+            });
+
+            recipes.push(newRecipe);
+            localStorage.setItem('redm_crafting_recipes', JSON.stringify(recipes));
+
+            renderIndex();
+            // Automatically open newly created recipe
+            loadRecipe(recipes.length - 1, document.querySelectorAll('.recipe-tab')[recipes.length - 1]);
+        }
+
+        // Init
+        window.onload = () => {
+            renderIndex();
+        };
+    </script>
+</body>
+</html>
