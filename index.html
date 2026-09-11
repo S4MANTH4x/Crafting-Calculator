@@ -1146,7 +1146,88 @@
             { qty: 2, name: "Salt", cost: 0.50 }
         ],
         tools: ["Crafting Knife"]
+    },
+    {
+        name: "Charcoal",
+        icon: "",
+        yield: 5,
+        xp:  1,
+        totalPrice:  0.60,
+        ingredients: [
+            { qty: 3, name: "Wood", cost: 0.20 }
+        ],
+        tools: ["Shovel"]
+    },
+    {
+        name: "Sap",
+        icon: "",
+        yield: 10,
+        xp: 1,
+        totalPrice: 1.40,
+        ingredients: [
+            { qty: 3, name: "Wood", cost: 0.20  },
+            { qty: 2, name: "Any Fuel", cost: 0.40 }
+        ],
+        tools: ["Big Cooking Pot"]
+    },
+    {
+        name: "Glass",
+        icon: "",
+        yield: 6,
+        xp: 6,
+        totalPrice: 11,
+        ingredients: [
+            { qty: 20, name: "Sand", cost: 0.50 },
+            { qty: 10, name: "Minerals", cost: 0.10 }
+        ],
+        tools: []
+    },
+    {
+        name: "Glass Bottle",
+        icon: "",
+        yield: 4,
+        xp: 6,
+        totalPrice: 10.98,
+        ingredients: [
+            { qty: 6, name: "Glass", cost: 1.83 }
+        ],
+        tools: ["Iron Hammer"]
+    },
+    {
+        name: "Empty Jar",
+        icon: "",
+        yield: 4,
+        xp: 6,
+        totalPrice: 11.28,
+        ingredients: [
+            { qty: 6, name: "Glass", cost: 1.83 },
+            { qty: 1, name: "Iron", cost: 0.30 }
+        ],
+        tools: ["Iron Hammer"]
+    },
+    {
+        name: "Sand",
+        icon: "",
+        yield: 1,
+        xp: 1,
+        totalPrice: 0.50,
+        ingredients: [
+            { qty: 5, name: "Rock", cost: 0.20 }
+        ],
+        tools: ["Stone hammer", "Grinder"]
+    },
+    {
+        name: "Minerals",
+        icon: "",
+        yield: 3,
+        xp: 2,
+        totalPrice: 0.20,
+        ingredients: [
+            { qty: 1, name: "Rock", cost: 0.20 }
+        ],
+        tools: ["Grinder"]
     }
+
 ];
 
         let recipes = JSON.parse(localStorage.getItem('redm_crafting_recipes')) || defaultRecipes;
